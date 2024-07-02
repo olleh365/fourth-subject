@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'weather_model.dart';
 
 
 void main() {
@@ -24,21 +25,34 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class WeatherScreenState extends State<WeatherScreen> {
-  String weatherData = '';
+  WeatherModel? weatherData;
   bool isLoading = false;
   final _dio = Dio();
+  final TextEditingController _latController = TextEditingController();
+  final TextEditingController _lonController = TextEditingController();
+
 
   void fetchWeather() async {
     setState(() {
       isLoading = true;
     });
     try {
-      var response = await _dio.get('https://api.openweathermap.org/data/2.5/weather?lat=37.5511543&lon=126.9727751&appid=fe8f9cb8d0946ab928eea3124790e656');
+      var response = await _dio.request(
+        'https://api.openweathermap.org/data/2.5/weather',
+        queryParameters: {
+          'lat': _latController.text,
+          'lon': _lonController.text,
+          'appid': 'fe8f9cb8d0946ab928eea3124790e656',
+          'options': Options(method: 'GET'),
 
-      weatherData = response.data.toString();
+        },);
+
+      setState(() {
+        weatherData = WeatherModel.fromJson(response.data);
+      });
     } catch (e) {
       setState(() {
-        weatherData = '예외 발생: $e';
+        weatherData = null;
       });
     } finally {
       setState(() {
@@ -57,10 +71,35 @@ class WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextFormField(
+              controller: _latController,
+              decoration: const InputDecoration(
+                labelText: '위도',
+                hintText: '위도를 입력하시오',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            TextFormField(
+              controller: _lonController,
+              decoration: const InputDecoration(
+                labelText: '경도',
+                hintText: '경도를 입력하시오',
+              ),
+              keyboardType: TextInputType.number,
+            ),
             if(isLoading)
               const CircularProgressIndicator()
+            else if(weatherData != null)
+              Column(
+                children: [
+                  Text('도시: ${weatherData!.cityName}'),
+                  Text('날씨: ${weatherData!.main}'),
+                  Text('상세 설명: ${weatherData!.description}'),
+                  Text('온도: ${weatherData!.temp.toStringAsFixed(1)}°C'),
+                ],
+              )
             else
-              Text(weatherData),
+              const Text('날씨를 조회하세요'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: fetchWeather,
