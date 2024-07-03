@@ -31,20 +31,18 @@ class WeatherScreenState extends State<WeatherScreen> {
   final TextEditingController _latController = TextEditingController();
   final TextEditingController _lonController = TextEditingController();
 
-
   void fetchWeather() async {
     setState(() {
       isLoading = true;
     });
     try {
-      var response = await _dio.request(
+      var response = await _dio.get(
         'https://api.openweathermap.org/data/2.5/weather',
         queryParameters: {
           'lat': _latController.text,
           'lon': _lonController.text,
           'appid': 'fe8f9cb8d0946ab928eea3124790e656',
-          'options': Options(method: 'GET'),
-
+          'units' : 'metric',
         },);
 
       setState(() {
@@ -70,7 +68,7 @@ class WeatherScreenState extends State<WeatherScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             TextFormField(
               controller: _latController,
               decoration: const InputDecoration(
@@ -92,14 +90,15 @@ class WeatherScreenState extends State<WeatherScreen> {
             else if(weatherData != null)
               Column(
                 children: [
-                  Text('도시: ${weatherData!.cityName}'),
-                  Text('날씨: ${weatherData!.main}'),
-                  Text('상세 설명: ${weatherData!.description}'),
-                  Text('온도: ${weatherData!.temp.toStringAsFixed(1)}°C'),
+                  Text('날짜: ${weatherData?.localTime}'),
+                  Text('도시: ${weatherData?.cityName}'),
+                  Text('날씨: ${weatherData?.main}'),
+                  Text('온도: ${weatherData?.temp.toStringAsFixed(1)}°C'),
+                  Text('풍속: ${weatherData?.wind}m/s'),
+                  Text('습도: ${weatherData?.humidity}%'),
+                  Text('최저/최고온도\n ${weatherData?.tempMax.toStringAsFixed(0)}°C/ ${weatherData?.tempMin.toStringAsFixed(0)}°C')
                 ],
-              )
-            else
-              const Text('날씨를 조회하세요'),
+              ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: fetchWeather,
