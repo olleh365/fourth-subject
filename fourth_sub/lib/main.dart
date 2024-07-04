@@ -87,7 +87,7 @@ class WeatherScreenState extends State<WeatherScreen> {
             ),
             if(isLoading)
               const CircularProgressIndicator()
-            else if(weatherData != null)
+            else
               Column(
                 children: [
                   Text('날짜: ${weatherData?.localTime}'),
