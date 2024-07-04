@@ -1,3 +1,7 @@
+import 'package:json_annotation/json_annotation.dart';
+part 'weather_model.g.dart';
+
+@JsonSerializable()
 class WeatherModel {
   final String main;
   final double temp;
@@ -20,18 +24,9 @@ class WeatherModel {
     required this.timezone
   });
 
-  factory WeatherModel.fromJson(Map<String, dynamic>jsonData) {
-    return WeatherModel(
-      main: jsonData['weather'][0]['main'],
-      temp: jsonData['main']['temp'],
-      cityName: jsonData['name'],
-      wind: jsonData['wind']['speed'],
-      humidity: jsonData['main']['humidity'],
-      tempMin: jsonData['main']['temp_min'],
-      tempMax: jsonData['main']['temp_max'],
-      timezone: jsonData['timezone']
-    );
-  }
+  factory WeatherModel.fromJson(Map<String, dynamic>jsonData) => _$WeatherModelFromJson(jsonData);
+  Map<String,dynamic> toJson() => _$WeatherModelToJson(this);
+
   DateTime get localTime {
     return DateTime.now().toUtc().add(Duration(seconds: timezone));
   }
